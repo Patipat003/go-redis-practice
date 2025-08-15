@@ -1,13 +1,33 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+	"log"
+
+	"github.com/paitpat003/goredis/repositories"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+)
 
 func main() {
-	app := fiber.New()
+	db := initDatabase()
 
-	app.Get("/Hello", func(c *fiber.Ctx) error {
-		return c.SendString("Hello world")
-	})
+	productRepo := repositories.NewProductRepositoryDB(db)
 
-	app.Listen(":8000")
+	products, err := productRepo.GetProducts()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	fmt.Println(products)
+}
+
+func initDatabase() *gorm.DB {
+	dial := mysql.Open("root:pass1234@tcp(localhost:3306)/mydatabase")
+	db, err := gorm.Open(dial, &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return db
 }

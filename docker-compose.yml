@@ -18,7 +18,7 @@ services:
       - ./scripts:/scripts
 
   influxdb:
-    image: influxdb:latest
+    image: influxdb:1.8
     container_name: influxdb
     environment:
       - INFLUXDB_DB=k6
@@ -38,4 +38,14 @@ services:
       - 3000:3000
     volumes:
       - ./data/grafana:/var/lib/grafana
-# 1:01:12
+
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=pass1234
+      - MARIADB_DATABASE=mydatabase
+    ports:
+      - 3306:3306
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
