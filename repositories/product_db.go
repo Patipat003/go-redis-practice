@@ -1,10 +1,6 @@
 package repositories
 
 import (
-	"fmt"
-	"math/rand"
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -15,29 +11,9 @@ type productRepositoryDB struct {
 func NewProductRepositoryDB(db *gorm.DB) ProductRepository {
 	db.AutoMigrate(&product{})
 	mockdata(db)
-	return productRepositoryDB{db}
+	return productRepositoryDB{db: db}
 }
 
-func mockdata(db *gorm.DB) error {
-
-	var count int64
-	db.Model(&product{}).Count(&count)
-	if count > 0 {
-		return nil
-	}
-
-	seed := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(seed)
-
-	products := []product{}
-	for i := 0; i < 5000; i++ {
-		products = append(products, product{
-			Name: fmt.Sprintf("product%v", i + 1),
-			Quantity: random.Intn(100),
-		})
-	}
-	return db.Create(&products).Error
-}
 
 func (r productRepositoryDB) GetProducts() (products []product, err error) {
 	err = r.db.Order("quantity desc").Limit(30).Find(&products).Error
